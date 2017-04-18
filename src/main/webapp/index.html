@@ -1,0 +1,79 @@
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="static/styling.css">
+<!-- <link rel="stylesheet" type="text/css" href="nagalapuram/IMG_20170312_074902.jpg"> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+var placeVsDesc = new Object();
+$(document).ready(function(){	
+	$.ajax({url: "/contextlist?list=all", success: function(result){
+		$("#contextOptions").empty();
+		var i = -1;
+		result.forEach(function(place,index){
+			placeVsDesc[place.ID] = place.descr +" in "+ place.year;
+			i++;
+			if(i==0)
+			{
+				$("#contextOptions").append("<option value='"+place.ID+"'selected>"+place.contextName+"</option>");
+				$("#output").html('<h2>'+placeVsDesc[place.ID]+'</h2>');
+			}
+			else
+			{
+				$("#contextOptions").append("<option value='"+place.ID+"'>"+place.contextName+"</option>");
+			}
+			});
+        }});
+
+	$("#contextOptions").change(function(){
+		$("#output").html('<h2>'+placeVsDesc[this.value]+'</h2>');
+	});
+    $(".mainbutton").click(function(){
+    	var dirName = $( "#contextOptions option:selected" ).text();
+        $.ajax({url: "/contentList?dirName="+dirName, success: function(result){
+		console.log(result);
+		$("#mainDiv").hide();
+		$("#imgDiv").show();
+            $("#imgDiv").html('<h2>'+$( "#contextOptions option:selected" ).text()+'</h2>');
+            $("#imgDiv").append('<div id=backButton onclick="backToHome();">Back</div>');
+			for(item in result){
+				$("#imgDiv").append('<div class="forPadding"><img src="/'+dirName+'/'+result[item]+'" class="imgClass" alt="'+result[item]+'" onclick="window.open(this.src)" width="150" height="150"></div>');
+			}
+        }});
+    });
+});
+function backToHome(){
+	$("#mainDiv").show();
+	$("#imgDiv").empty();
+	$("#imgDiv").hide();
+}
+</script>
+<title>Site Pot</title>
+</head>
+<body style="background-image:url('/static/website-background.jpg'); background-position: center;"> 
+
+	<div id="div1"><h2 style="margin-top: 25px;font-style: italic;font-family: cursive;">Site Pot</h2></div>
+	<hr class="between" />
+	<div class="menuBar" style="margin-top: -11px;  height: 100%; width:100px;position:absolute;z-index:5;background-color: #818082;margin-left:-8px"><a class="active">Home </a>
+		<a>Upcoming</a>
+		<a href="static/exp.html">Experiences </a>
+		<a>Itineraries</a>
+		<a>More</a>
+		<a>Blogs</a>
+		<a>Settings</a>
+	</div>
+	<div class= mainContainer style="padding-left: 10%;width:90%">
+	<div id="mainDiv">
+		<div id="contextDiv" style="padding: 15px 30px; text-align: center; position: absolute; top: 16%;right:40%">
+			<label style="padding: 15;font-size: 18px;font-family: cursive; color: #686769;">Context </label>
+			<select id="contextOptions" class="selectBox">
+			</select>
+		</div>
+		<div class="mainbutton">Get Content</div>
+		<div class="serverContent" id="output">Show the output here</div>
+	</div>
+	<div id="imgDiv" style="display: none; width:90% padding-left:10%">
+		<div id=backButton onclick="backToHome();">Back</div>
+	</div>
+	</div>
+</body>
+</html>

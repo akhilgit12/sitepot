@@ -1,0 +1,103 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="styling.css">
+<script>
+var placeVsDesc = new Object();
+$(document).ready(function(){
+    	$.ajax({url: "/contextlist?list=all", success: function(result){
+		$("#contextOptions").empty();
+		var i = -1;
+		result.forEach(function(place,index){
+			placeVsDesc[place.ID] = place.descr +" in "+ place.year;
+			i++;
+			if(i==0)
+			{
+				$("#contextOptions").append("<option value='"+place.ID+"'selected>"+place.contextName+"</option>");
+				$("#output").html('<h2>'+placeVsDesc[place.ID]+'</h2>');
+			}
+			else
+			{
+				$("#contextOptions").append("<option value='"+place.ID+"'>"+place.contextName+"</option>");
+			}
+			});
+		$("#contextOptions").trigger('change');
+        }});
+});
+function openAddView() {
+	$("#expTextDiv").empty();
+	$("#expTextAuthor").empty();
+	$("#addExpText").show();
+}
+function postExperience(){
+	var text = $("#expTextDiv").val();
+	var athr = $("#expTextAuthor").val();
+	var place = $("#contextOptions option:selected").text();
+	data = {'expText':text,'athr':athr};
+	$.ajax({
+		type:'POST',
+		url:'/exp/add?place='+place,
+		data:data,
+		success:function(result){
+			console.log(result);
+			$('#addExpText').hide();
+			$('.eachExp').append('<div class="exp">'+text+'<span><br><br></span><span class="byUser">'+athr+'</span></div>');
+		}
+	});
+}
+function getExperience(){
+	var place = $("#contextOptions option:selected").text();
+	$.ajax({
+		url:'/exp/get?place='+place,
+		success:function(result){
+			console.log(result);
+			$('.eachExp').empty();
+			result.forEach(function(item,index){
+				$('.eachExp').append('<div class="exp">'+item.exp+'<span><br><br></span><span class="byUser">'+item.athr+'</span></div>');
+			});
+		}
+	});
+}
+</script>
+<title>Site Pot</title>
+</head>
+<body style="background-image:url('/static/website-background.jpg'); background-position: center;"> 
+	<div id="div1"><h2 style="margin-top: 25px;font-style: italic;font-family: cursive;">Site Pot</h2></div>
+	<hr class="between" />
+	<div class="menuBar" style="margin-top: -11px;  height: 100%; width:100px;position:absolute;z-index:5;background-color: #818082;margin-left:-8px"><a href="../index.html">Home </a>
+		<a>Upcoming</a>
+		<a class="active">Experiences </a>
+		<a>Itineraries</a>
+		<a>More</a>
+		<a>Blogs</a>
+		<a>Settings</a>
+	</div>
+	<div class= mainContainer style="padding-left: 10%;width:90%">
+	<div id="mainDiv">
+	<div class="addExp" onclick="openAddView();">+</div>
+	<div id="addExpText" style="float: right;width: 360px;height: 75%;background: white;z-index: 100;border: 2px solid gray;display: none;">
+		  <div class="expText" style="padding-top: 50px;padding-left: 15px;">
+				<label style="align-items: center;">Experience</label><br><br>
+				<textarea id="expTextDiv" rows="6" cols="40">edo okati raayi ra babu
+				</textarea>
+		  </div>
+  		<div style="padding-top: 50px;padding-left: 15px;">
+			<label style="align-items: center;">Name</label><br><input id="expTextAuthor" type="Text">
+    	</div>
+    	<div class="submitButtons" style="padding-top: 50px;padding-left: 15px;">
+    		<button Class="cancelBtn" onclick="$('#addExpText').hide();">Cancel</button>&nbsp;
+      		<button class="submitBtn" onclick="postExperience();">Submit</button>
+      	</div>
+	</div>
+		<div id="contextDiv" style="padding: 15px 30px; text-align: center; position: absolute; top: 16%;right:40%;">
+			<label style="padding: 15;font-size: 18px;font-family: cursive; color: #686769;">Context </label>
+			<select id="contextOptions" class="selectBox" onchange="getExperience();">
+			</select>
+		</div>
+		<div class="eachExp">
+			
+		</div>
+	</div>
+	</div>
+</body>
+</html>
